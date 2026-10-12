@@ -1,0 +1,8 @@
+# Training-data cutoff dates for the models used in experiments.
+# Only add a model with a cutoff taken from the provider's own documentation.
+# release_lag_months: how long after a survey year's fieldwork ends (Dec 31)
+# its data is assumed to be public.
+release_lag_months: 12
+models:
+  - name: claude-sonnet-5-5
+    cutoff: "2026-06"

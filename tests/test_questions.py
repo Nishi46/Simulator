@@ -11,6 +11,7 @@ VALID = {
     "gss_variable": "grass",
     "text": "Should marijuana be legal?",
     "options": ["Legal", "Not legal"],
+    "option_codes": [1, 2],
     "ordinal": False,
     "category": "contested_social",
     "years": [1973, 2022],
@@ -193,3 +194,13 @@ def test_question_is_immutable():
     (q,) = parse_questions(dump(VALID))
     with pytest.raises(Exception):
         q.id = "other"
+
+
+@pytest.mark.parametrize("codes", [[1], [1, 2, 3], [1, 1], [-1, 2], [1, 1000], [1, 2.5], [True, 2], ["1", "2"], "12", None])
+def test_bad_option_codes_rejected(codes):
+    bad(mutate(option_codes=codes), "option_codes")
+
+
+def test_option_codes_need_not_be_contiguous_or_sorted():
+    (q,) = parse_questions(dump(mutate(option_codes=[4, 0])))
+    assert q.option_codes == (4, 0)

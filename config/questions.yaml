@@ -6,6 +6,7 @@ questions:
     gss_variable: grass
     text: "Do you think the use of marijuana should be made legal, or not?"
     options: ["Legal", "Not legal"]
+    option_codes: [1, 2]
     ordinal: false
     category: contested_social
     years: [1973, 2022]
@@ -14,6 +15,7 @@ questions:
     gss_variable: cappun
     text: "Do you favor or oppose the death penalty for persons convicted of murder?"
     options: ["Favor", "Oppose"]
+    option_codes: [1, 2]
     ordinal: false
     category: contested_social
     years: [1972, 2022]

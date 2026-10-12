@@ -10,8 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import yaml
-
+from data.yamlio import YamlError, parse_strict_yaml
 from simulator.config import ROOT
 
 DEFAULT_PATH = ROOT / "config" / "questions.yaml"
@@ -22,6 +21,7 @@ YEAR_MIN, YEAR_MAX = 1972, 2030  # GSS began in 1972
 MAX_FILE_BYTES = 1_000_000
 MAX_QUESTIONS = 200
 MAX_OPTIONS = 20
+MAX_CODE = 999
 MAX_TEXT = 500
 MAX_LABEL = 100
 MAX_NOTE = 1000
@@ -29,7 +29,7 @@ MAX_NOTE = 1000
 _ID_RE = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 _VAR_RE = re.compile(r"^[a-z][a-z0-9_]{0,31}$")
 _FIELDS = {
-    "id", "gss_variable", "text", "options", "ordinal",
+    "id", "gss_variable", "text", "options", "option_codes", "ordinal",
     "category", "years", "contamination_note",
 }
 
@@ -44,40 +44,18 @@ class Question:
     gss_variable: str
     text: str
     options: tuple[str, ...]
+    option_codes: tuple[int, ...]  # raw GSS code for each option, same order as `options`
     ordinal: bool
     category: str
     years: tuple[int, int]
     contamination_note: str
 
 
-class _StrictLoader(yaml.SafeLoader):
-    """SafeLoader that rejects duplicate mapping keys."""
-
-
-def _construct_mapping(loader: _StrictLoader, node: yaml.MappingNode, deep: bool = False):
-    seen = set()
-    for key_node, _ in node.value:
-        key = loader.construct_object(key_node, deep=True)
-        if key in seen:
-            raise QuestionRegistryError(f"duplicate YAML key: {key!r}")
-        seen.add(key)
-    return yaml.SafeLoader.construct_mapping(loader, node, deep=deep)
-
-
-_StrictLoader.add_constructor(
-    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _construct_mapping
-)
-
-
 def _parse_yaml(text: str) -> Any:
     try:
-        # Aliases can expand a tiny file into a huge structure; not needed here.
-        for event in yaml.parse(text, Loader=yaml.SafeLoader):
-            if isinstance(event, yaml.AliasEvent):
-                raise QuestionRegistryError("YAML aliases/anchors are not allowed")
-        return yaml.load(text, Loader=_StrictLoader)  # noqa: S506 (SafeLoader subclass)
-    except yaml.YAMLError as e:
-        raise QuestionRegistryError(f"invalid YAML: {e}") from e
+        return parse_strict_yaml(text)
+    except YamlError as e:
+        raise QuestionRegistryError(str(e)) from e
 
 
 def _check_str(value: Any, field: str, max_len: int, qid: str) -> str:
@@ -138,6 +116,15 @@ def _validate_question(raw: Any, index: int) -> Question:
     if len(set(folded)) != len(folded):
         raise QuestionRegistryError(f"{qid_label}: duplicate option labels")
 
+    codes_raw = raw["option_codes"]
+    if not isinstance(codes_raw, list) or len(codes_raw) != len(options):
+        raise QuestionRegistryError(f"{qid_label}: 'option_codes' must be a list as long as 'options'")
+    codes = tuple(_check_int(c, "option_codes[]", qid_label) for c in codes_raw)
+    if any(not 0 <= c <= MAX_CODE for c in codes):
+        raise QuestionRegistryError(f"{qid_label}: 'option_codes' must be within 0-{MAX_CODE}")
+    if len(set(codes)) != len(codes):
+        raise QuestionRegistryError(f"{qid_label}: duplicate option_codes")
+
     ordinal = raw["ordinal"]
     if not isinstance(ordinal, bool):
         raise QuestionRegistryError(f"{qid_label}: 'ordinal' must be true or false")
@@ -160,7 +147,7 @@ def _validate_question(raw: Any, index: int) -> Question:
 
     note = _check_str(raw["contamination_note"], "contamination_note", MAX_NOTE, qid_label)
 
-    return Question(qid, var, text, options, ordinal, category, (start, end), note)
+    return Question(qid, var, text, options, codes, ordinal, category, (start, end), note)
 
 
 def parse_questions(text: str) -> list[Question]:
