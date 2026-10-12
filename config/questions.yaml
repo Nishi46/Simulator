@@ -1,0 +1,20 @@
+# Question registry. PROVISIONAL: two illustrative items so the loader has
+# something real to validate. The 15-25 item selection happens in step 1.15,
+# and ids, years and wording must be checked against the GSS codebook then.
+questions:
+  - id: grass_legal
+    gss_variable: grass
+    text: "Do you think the use of marijuana should be made legal, or not?"
+    options: ["Legal", "Not legal"]
+    ordinal: false
+    category: contested_social
+    years: [1973, 2022]
+    contamination_note: "Long-running item; published trends are widely reported, so likely seen by models."
+  - id: cappun_favor
+    gss_variable: cappun
+    text: "Do you favor or oppose the death penalty for persons convicted of murder?"
+    options: ["Favor", "Oppose"]
+    ordinal: false
+    category: contested_social
+    years: [1972, 2022]
+    contamination_note: "Long-running item; published trends are widely reported, so likely seen by models."
