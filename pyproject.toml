@@ -1,0 +1,22 @@
+[project]
+name = "simulator"
+version = "0.1.0"
+description = "Mini population simulator with a calibration harness"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "scipy",
+    "pyyaml",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools]
+packages = ["simulator"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

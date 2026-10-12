@@ -1,0 +1,8 @@
+# Example experiment config. Real configs are added in later parts.
+name: example
+seed: 42
+question: example_item
+persona_level: L1      # L0 none | L1 demographics | L2 + attitudinal anchors
+model: mock
+n_samples: 10
+temperature: 1.0
