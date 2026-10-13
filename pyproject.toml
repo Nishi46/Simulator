@@ -21,3 +21,4 @@ packages = ["simulator", "data", "eval"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["network: test needs real internet access (network is blocked otherwise)"]

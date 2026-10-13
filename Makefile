@@ -9,6 +9,9 @@ setup:
 test:
 	$(PY) -m pytest
 
+data:
+	$(PY) -m data.pipeline config/data.yaml
+
 # Wired up in later parts:
-data baselines run report:
+baselines run report:
 	@echo "'$@' not implemented yet (see TECHNICAL_PLAN.md)"

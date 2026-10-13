@@ -1,0 +1,24 @@
+# Data pipeline config (run with `make data`). NOT PINNED YET: until the
+# source is reviewed and its checksums are filled in (step 1.15), the
+# pipeline refuses to run. Never copy a checksum you did not verify yourself.
+name: gss_data
+source:
+  url: "https://gss.norc.org/REPLACE-WITH-REVIEWED-URL"
+  sha256: null            # sha256 of the downloaded file
+  rel_path: gss.zip       # under data/raw/
+  max_bytes: 500000000
+  archive: true
+  member: gss_cumulative.dta
+  max_total: 2000000000
+  max_ratio: 100
+data:
+  sha256: null            # sha256 of the extracted data file
+inputs:
+  questions: config/questions.yaml
+  missing_codes: config/missing_codes.yaml
+  models: config/model_cutoffs.yaml
+split:
+  seed: 20261103
+  fractions: {train: 0.6, calibration: 0.2, test: 0.2}
+  strata_cols: [year, party]
+  min_stratum_size: 10

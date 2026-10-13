@@ -1,0 +1,14 @@
+# Cleaning rules per GSS column: which values are real answers and which are
+# special codes (and what they mean). PROVISIONAL: written from memory of the
+# GSS codebook; every entry must be checked against the real codebook in step
+# 1.15. An unlisted value stops the build, which is the point.
+grass:   {missing: {0: "IAP", 8: "DK", 9: "NA"}, valid_values: [1, 2]}
+cappun:  {missing: {0: "IAP", 8: "DK", 9: "NA"}, valid_values: [1, 2]}
+age:     {missing: {99: "NA"}, valid_range: [18, 89]}
+sex:     {valid_values: [1, 2]}
+race:    {valid_values: [1, 2, 3]}
+degree:  {missing: {8: "DK", 9: "NA"}, valid_range: [0, 4]}
+realinc: {valid_range: [0, 10000000]}
+region:  {valid_range: [1, 9]}
+partyid: {missing: {8: "DK", 9: "NA"}, valid_range: [0, 7]}
+srcbelt: {valid_range: [1, 6]}

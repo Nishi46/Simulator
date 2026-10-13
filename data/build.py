@@ -170,12 +170,8 @@ def _target(rel_path: str, base_dir: str | Path) -> Path:
     return path
 
 
-def write_table(df: pd.DataFrame, questions: Iterable[Question], rel_path: str,
-                *, base_dir: str | Path = PROCESSED_DIR) -> Path:
-    """Validate, then write atomically. Nothing is written if validation fails."""
-    questions = list(questions)
-    validate_schema(df, questions)
-    path = _target(rel_path, base_dir)
+def atomic_write_parquet(df: pd.DataFrame, path: Path) -> None:
+    """Write via a temp file and rename, so `path` is never partially written."""
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".part")
     os.close(fd)
@@ -186,6 +182,15 @@ def write_table(df: pd.DataFrame, questions: Iterable[Question], rel_path: str,
         os.replace(tmp, path)
     finally:
         tmp.unlink(missing_ok=True)
+
+
+def write_table(df: pd.DataFrame, questions: Iterable[Question], rel_path: str,
+                *, base_dir: str | Path = PROCESSED_DIR) -> Path:
+    """Validate, then write atomically. Nothing is written if validation fails."""
+    questions = list(questions)
+    validate_schema(df, questions)
+    path = _target(rel_path, base_dir)
+    atomic_write_parquet(df, path)
     return path
 
 

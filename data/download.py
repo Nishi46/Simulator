@@ -30,7 +30,7 @@ MAX_REDIRECTS = 5
 _SHA_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
-class DownloadError(RuntimeError):
+class DownloadError(ValueError):
     """Raised for any refused or failed download. Messages never contain credentials or query strings."""
 
 
